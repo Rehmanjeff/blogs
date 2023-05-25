@@ -23,35 +23,34 @@
                   <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
                 </div>
                 <nav class="flex flex-1 flex-col">
-                  <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                    <li>
-                      <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name">
-                          <a :href="item.href" :class="[item.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                            <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
-                            {{ item.name }}
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li>
-                      <div class="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                      <ul role="list" class="-mx-2 mt-2 space-y-1">
-                        <li v-for="team in teams" :key="team.name">
-                          <a :href="team.href" :class="[team.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">{{ team.initial }}</span>
-                            <span class="truncate">{{ team.name }}</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li class="mt-auto">
-                      <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                        <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                        Settings
-                      </a>
-                    </li>
-                  </ul>
+                  <template v-for="item in navigation" :key="item.name">
+                      <Disclosure v-if="!item.children" as="div" class="space-y-1">
+                          <DisclosureButton classes="nav-item" :class="[item.href == $route.path ? 'bg-gray-200 text-gray-900' : 'hover:bg-gray-700 hover:text-white text-gray-300']" class="flex items-center p-2 text-sm rounded-md group w-full flex items-center text-left focus:outline-none">
+                              <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                              <RouterLink :to="item.href" class="flex-1">
+                                  {{ item.name }}
+                              </RouterLink>
+                          </DisclosureButton>
+                      </Disclosure>
+                      <Disclosure v-else as="div" class="space-y-1" v-slot="{ open }">
+                          <DisclosureButton classes="nav-item nav-item-dropdown" :is-dropdown-active="item.hrefs.includes($route.path)" class="flex items-center hover:bg-gray-700 hover:text-white text-gray-300 p-2 text-sm rounded-md group w-full flex items-center text-left focus:outline-none">
+                              <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                              <span class="flex-1">
+                                  {{ item.name }}
+                              </span>
+                              <svg :class="[open ? 'rotate-90' : '', 'ml-3 flex-shrink-0 h-5 w-5 transform text-gray-400 group-hover:text-gray-300 transition-colors ease-in-out duration-150']" viewBox="0 0 20 20" aria-hidden="true">
+                                  <path d="M6 6L14 10L6 14V6Z" fill="currentColor" />
+                              </svg>
+                          </DisclosureButton>
+                          <DisclosurePanel class="space-y-1">
+                              <DisclosureButton v-for="subItem in item.children" :key="subItem.name" as="div">
+                                  <RouterLink :to="subItem.href" :class="[subItem.href == $route.path ? 'bg-gray-200 text-gray-900' : 'hover:bg-gray-700 hover:text-white text-gray-300']" class="group w-full flex items-center text-sm rounded-md pl-11 pr-2 py-2">
+                                      {{ subItem.name }}
+                                  </RouterLink>
+                              </DisclosureButton>
+                          </DisclosurePanel>
+                      </Disclosure>
+                  </template>
                 </nav>
               </div>
             </DialogPanel>
@@ -68,41 +67,40 @@
           <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
         </div>
         <nav class="flex flex-1 flex-col">
-          <ul role="list" class="flex flex-1 flex-col gap-y-7">
-            <li>
-              <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in navigation" :key="item.name">
-                  <a :href="item.href" :class="[item.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                    <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
-                    {{ item.name }}
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <div class="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-              <ul role="list" class="-mx-2 mt-2 space-y-1">
-                <li v-for="team in teams" :key="team.name">
-                  <a :href="team.href" :class="[team.current ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">{{ team.initial }}</span>
-                    <span class="truncate">{{ team.name }}</span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            <li class="mt-auto">
-              <a href="#" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white">
-                <Cog6ToothIcon class="h-6 w-6 shrink-0" aria-hidden="true" />
-                Settings
-              </a>
-            </li>
-          </ul>
+          <template v-for="item in navigation" :key="item.name">
+              <Disclosure v-if="!item.children" as="div" class="space-y-1">
+                  <DisclosureButton classes="nav-item" :class="[item.href == $route.path ? 'bg-gray-200 text-gray-900' : 'hover:bg-gray-700 hover:text-white text-gray-300']" class="flex items-center p-2 text-sm rounded-md group w-full flex items-center text-left focus:outline-none">
+                      <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                      <RouterLink :to="item.href" class="flex-1">
+                          {{ item.name }}
+                      </RouterLink>
+                  </DisclosureButton>
+              </Disclosure>
+              <Disclosure v-else as="div" class="space-y-1" v-slot="{ open }">
+                  <DisclosureButton classes="nav-item nav-item-dropdown" :is-dropdown-active="item.hrefs.includes($route.path)" class="flex items-center hover:bg-gray-700 hover:text-white text-gray-300 p-2 text-sm rounded-md group w-full flex items-center text-left focus:outline-none">
+                      <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
+                      <span class="flex-1">
+                          {{ item.name }}
+                      </span>
+                      <svg :class="[open ? 'rotate-90' : '', 'ml-3 flex-shrink-0 h-5 w-5 transform text-gray-400 group-hover:text-gray-300 transition-colors ease-in-out duration-150']" viewBox="0 0 20 20" aria-hidden="true">
+                          <path d="M6 6L14 10L6 14V6Z" fill="currentColor" />
+                      </svg>
+                  </DisclosureButton>
+                  <DisclosurePanel class="space-y-1">
+                      <DisclosureButton v-for="subItem in item.children" :key="subItem.name" as="div">
+                          <RouterLink :to="subItem.href" :class="[subItem.href == $route.path ? 'bg-gray-200 text-gray-900' : 'hover:bg-gray-700 hover:text-white text-gray-300']" class="group w-full flex items-center text-sm rounded-md pl-11 pr-2 py-2">
+                              {{ subItem.name }}
+                          </RouterLink>
+                      </DisclosureButton>
+                  </DisclosurePanel>
+              </Disclosure>
+          </template>
         </nav>
       </div>
     </div>
 
     <div class="lg:pl-72">
-      <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <div class="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
         <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
@@ -148,7 +146,7 @@
         </div>
       </div>
 
-      <main class="py-10">
+      <main class="flex-1 flex flex-col bg-gray-100 min-h-screen">
         <div class="px-4 sm:px-6 lg:px-8">
           <slot></slot>
         </div>
@@ -162,14 +160,45 @@ import { ref } from 'vue'
 import { Dialog, DialogPanel,  Menu, MenuButton, MenuItem,  MenuItems, TransitionChild,  TransitionRoot } from '@headlessui/vue'
 import { Bars3Icon, BellIcon, CalendarIcon, ChartPieIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Team', href: '#', icon: UsersIcon, current: false },
-  { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-  { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
+  { name: 'Dashboard', href: '/admin', icon: HomeIcon, current: true },
+  {
+    name: 'Blogs',
+    icon: UsersIcon,
+    current: false,
+    hrefs:[
+        '/admin/blogs',
+        '/admin/blogs/create',
+    ],
+    children: [
+        { name: 'List', href: '/admin/blogs/list'},
+        { name: 'Add', href: '/admin/blogs/create'},
+    ],
+  },
+  {
+    name: 'Categories',
+    icon: UsersIcon,
+    current: false,
+    hrefs:[
+        '/admin/categories'
+    ],
+    children: [
+        { name: 'List', href: '/admin/categories/list'}
+    ],
+  },
+  {
+    name: 'Authors',
+    icon: UsersIcon,
+    current: false,
+    hrefs:[
+        '/admin/authors'
+    ],
+    children: [
+        { name: 'List', href: '/admin/authors/list'}
+    ],
+  },
 ]
 const teams = [
   { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },

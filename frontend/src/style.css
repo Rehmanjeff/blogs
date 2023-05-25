@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.primeDatatable .p-column-header-content, .primeDatatable .p-datatable-tbody, .primeDatatable .p-inputtext.p-component {
+    font-size: .9rem;
+}
+.primeDatatable .pi.pi-search {
+    top: 53%;
+}
+.primeDatatable .p-datatable-header {
+    padding: 1rem;
+    text-align: left;
+    font-size: 1.5rem;
+}
+.primeDatatable .p-paginator {
+    padding: 1rem;
+}
+.primeDatatable .p-datatable-thead > tr > th {
+    text-align: left;
+}
+.primeDatatable .p-datatable-tbody > tr > td {
+    cursor: auto;
+}
+.primeDatatable .p-dropdown-label:not(.p-placeholder) {
+    text-transform: uppercase;
+}
+.primeDatatable .p-paginator-current {
+    margin-left: auto !important;
+}
