@@ -23,7 +23,7 @@
                   <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
                 </div>
                 <nav class="flex flex-1 flex-col">
-                  <template v-for="item in navigation" :key="item.name">
+                  <div v-for="item in navigation" :key="item.name">
                       <Disclosure v-if="!item.children" as="div" class="space-y-1">
                           <DisclosureButton classes="nav-item" :class="[item.href == $route.path ? 'bg-gray-200 text-gray-900' : 'hover:bg-gray-700 hover:text-white text-gray-300']" class="flex items-center p-2 text-sm rounded-md group w-full flex items-center text-left focus:outline-none">
                               <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
@@ -50,7 +50,7 @@
                               </DisclosureButton>
                           </DisclosurePanel>
                       </Disclosure>
-                  </template>
+                  </div>
                 </nav>
               </div>
             </DialogPanel>
@@ -67,7 +67,7 @@
           <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
         </div>
         <nav class="flex flex-1 flex-col">
-          <template v-for="item in navigation" :key="item.name">
+          <div v-for="item in navigation" :key="item.name">
               <Disclosure v-if="!item.children" as="div" class="space-y-1">
                   <DisclosureButton classes="nav-item" :class="[item.href == $route.path ? 'bg-gray-200 text-gray-900' : 'hover:bg-gray-700 hover:text-white text-gray-300']" class="flex items-center p-2 text-sm rounded-md group w-full flex items-center text-left focus:outline-none">
                       <component :is="item.icon" :class="[item.current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-300', 'mr-3 flex-shrink-0 h-6 w-6']" aria-hidden="true" />
@@ -94,7 +94,7 @@
                       </DisclosureButton>
                   </DisclosurePanel>
               </Disclosure>
-          </template>
+          </div>
         </nav>
       </div>
     </div>

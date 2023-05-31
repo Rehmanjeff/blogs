@@ -21,7 +21,7 @@
 <script setup>
 import AdminLayout from '@/layouts/Admin.vue'
 import BasicLayout from '@/layouts/Basic.vue'
-import SiteLayout from '@/layouts/Basic.vue'
+import SiteLayout from '@/layouts/Site.vue'
 import { useRoute } from "vue-router"
 
 const route = useRoute()
