@@ -6,6 +6,12 @@ export default {
   content: ["./src/**/*.{js,ts,jsx,tsx,vue}"],
   theme: {
     extend: {
+      width: {
+        '2/7': '28.57%',
+        '3/7':'42.85%',
+        '2/8':'25%',
+        '4/8':'50%'
+      },
       fontFamily: {
           sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
@@ -30,4 +36,3 @@ export default {
   },
   plugins: [],
 }
-

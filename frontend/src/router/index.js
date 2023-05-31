@@ -1,5 +1,4 @@
 import { createWebHistory, createRouter } from "vue-router";
-import Home from "@/site/pages/Home.vue";
 import AdminHome from "@/admin/pages/Home.vue";
 import AdminBlogList from "@/admin/pages/BlogList.vue";
 import AdminBlogCreate from "@/admin/pages/BlogCreate.vue";

@@ -27,7 +27,7 @@
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end">
           <RouterLink :to="{ name: 'Login',}" class="text-sm font-semibold leading-6 text-gray-900">
-            Log in &rarr
+            Log in &rarr;
           </RouterLink>
         </div>
       </nav>
