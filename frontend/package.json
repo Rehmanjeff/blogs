@@ -12,8 +12,10 @@
     "@headlessui/vue": "^1.7.13",
     "@heroicons/vue": "^2.0.18",
     "@vueup/vue-quill": "^1.2.0",
+    "axios": "^1.4.0",
     "primeicons": "^6.0.1",
     "primevue": "^3.29.1",
+    "react-router-dom": "^6.11.2",
     "vue": "^3.2.47",
     "vue-router": "^4.0.13"
   },

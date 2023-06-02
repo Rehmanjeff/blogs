@@ -4,6 +4,7 @@ import AdminBlogList from "@/admin/pages/BlogList.vue";
 import AdminBlogCreate from "@/admin/pages/BlogCreate.vue";
 import AdminBlogUpdate from "@/admin/pages/BlogEdit.vue";
 import AdminCategoryList from "@/admin/pages/CategoryList.vue";
+import AdminLogin from "@/admin/pages/Login.vue"
 import AdminAuthorList from "@/admin/pages/AuthorList.vue";
 import Home from "@/site/pages/Home.vue"
 import Blogs from "@/site/pages/Blogs.vue"
@@ -27,10 +28,10 @@ const routes = [
     meta: { isUserRoute: true },
   },
   {
-    path: "/login",
-    name: "Login",
-    component: Login,
-    meta: { isUserRoute: true },
+    path: "/admin/login",
+    name: "AdminLogin",
+    component: AdminLogin,
+    
   },
   {
     path: "/blog/:slug",
@@ -56,6 +57,12 @@ const routes = [
     name: "AdminHome",
     component: AdminHome,
     meta: { isAdminRoute: true },
+  },
+  {
+    path: "/admin/login",
+    name: "Login",
+    component: Login,
+    meta: { isUserRoute: true },
   },
   {
     path: "/admin/blogs/list",
