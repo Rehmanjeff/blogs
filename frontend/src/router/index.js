@@ -59,7 +59,7 @@ const routes = [
     meta: { isAdminRoute: true },
   },
   {
-    path: "/admin/login",
+    path: "/login",
     name: "Login",
     component: Login,
     meta: { isUserRoute: true },
