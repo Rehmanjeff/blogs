@@ -21,11 +21,10 @@ import AdminLogin from "@/admin/pages/Login.vue"
 import { ref } from 'vue'
 
 const route = useRoute()
-const token = ref(localStorage.getItem('dynoAuthToken'))
+const token = ref(localStorage.getItem('blogsAccessToken'))
 const isLoggedIn = ref(token.value !== null && token.value != '' ? true : false)
 
 const checkLogin = () => {
-  
   isLoggedIn.value = true
 }
 

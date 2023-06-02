@@ -31,8 +31,8 @@
                 </p>
               </RouterLink>
             </div>
-            <div v-if="error" class="flex ml-2">
-              <div class="mt-5 text-sm font-semibold text-theme-red">{{ error }}</div>
+            <div v-if="error" class="flex ml-2 text-sm text-themered">
+              <div class="mt-5 ">{{ error }}</div>
             </div>
           </div>
         </div>
@@ -56,11 +56,23 @@ const route = useRouter()
 
 const proceedLogin = () => {
   if (email.value !== '' && password.value !== '') {
-    login(email.value, password.value)
-      .then((data) => {
-        console.log(data)
-          
-      })
+    login(email.value, password.value).then((response) => {
+      console.log(response)
+      if(response.status == 200){
+        
+        if (response.data.access_token && response.data.refresh_token){
+          localStorage.setItem("blogsAccessToken", response.data.access_tokenss)
+          localStorage.setItem("blogsRefreshToken", response.data.refresh_tokenefresh)
+          localStorage.setItem("userId", response.data.user_id)
+          emit('response')      
+          route.push('/admin')  
+        } 
+      } else {
+        
+        error.value = response.response.data.message
+       
+      }
+    })    
   }
 };
 </script>

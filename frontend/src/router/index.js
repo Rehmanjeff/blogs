@@ -13,6 +13,9 @@ import Contact from "@/site/pages/Contact.vue"
 import Login from "@/site/pages/Login.vue"
 import Blog from "@/site/pages/Blog.vue"
 
+
+
+
 const routes = [
   {
     path: "/",
@@ -59,7 +62,7 @@ const routes = [
     meta: { isAdminRoute: true },
   },
   {
-    path: "/admin/login",
+    path: "/login",
     name: "Login",
     component: Login,
     meta: { isUserRoute: true },
