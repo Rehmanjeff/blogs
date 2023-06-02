@@ -26,6 +26,7 @@ const route = useRoute()
 const token = ref(localStorage.getItem('blogsAccessToken'))
 const isLoggedIn = ref(token.value !== null && token.value != '' ? true : false)
 
+console.log(token.value)
 const checkLogin = () => {
 
 isLoggedIn.value = true

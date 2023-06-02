@@ -61,8 +61,8 @@ const proceedLogin = () => {
       if(response.status == 200){
         
         if (response.data.access_token && response.data.refresh_token){
-          localStorage.setItem("blogsAccessToken", response.data.access_tokenss)
-          localStorage.setItem("blogsRefreshToken", response.data.refresh_tokenefresh)
+          localStorage.setItem("blogsAccessToken", response.data.access_token)
+          localStorage.setItem("blogsRefreshToken", response.data.refresh_token)
           localStorage.setItem("userId", response.data.user_id)
           emit('response')      
           route.push('/admin')  

@@ -103,12 +103,16 @@ def login():
         refresh_token_secret_key = 'your_refresh_token_secret_key'  # Replace with your own refresh token secret key
         refresh_token_algorithm = 'HS256'
         refresh_token = jwt.encode(refresh_token_payload, refresh_token_secret_key, algorithm=refresh_token_algorithm)
+
+        users_collection.update_one({'_id': user['_id']}, {'$set': {'access_token': access_token}})
+        users_collection.update_one({'_id': user['_id']}, {'$set': {'refresh_token': refresh_token}})
+
         return jsonify({'message': 'Login successful','user_id': str(user['_id']), 'access_token': access_token, 'refresh_token':refresh_token})
     else:
         return jsonify({'message': 'Invalid credentials'}), 401  
     
 
-    
+
 
 # Endpoint through which admin provide the valid access token recieve in the login endpoint and get the previliges to access the dashboard 
 @routes.route('/admin/dashboard', methods=['GET'])
@@ -126,13 +130,23 @@ def admin_dashboard():
         payload = jwt.decode(access_token, secret_key, algorithms=[algorithm])
         email = payload.get('email')
 
-        # Access token is valid, return the user email
-        if email:
+        # Connect to the MongoDB database or any other user authentication system
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['blogs']
+        users_collection = db['users']
+
+        # Find the user document by email and access token
+        user = users_collection.find_one({'email': email, 'access_token': access_token})
+
+        if user:
+            # Access token is valid and present in the database, return the user email
             return jsonify({'message': 'Access granted', 'email': email})
         else:
-            return jsonify({'message': 'Invalid access token'}), 401
+            return jsonify({'message': "Token dosen't exists in database"}), 401
     except jwt.ExpiredSignatureError:
-        return jsonify({'message': 'Access token has expired'}), 401
+        return jsonify({'message': 'Access token has expired'}), 401 
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid refresh token'}), 401   
     
 
 
@@ -167,3 +181,41 @@ def refresh_token():
         return jsonify({'message': 'Refresh token has expired'}), 401
     except jwt.InvalidTokenError:
         return jsonify({'message': 'Invalid refresh token'}), 401
+    
+
+
+@routes.route('/admin/logout', methods=['POST'])
+def logout():
+    auth_header = request.headers.get('Authorization')
+
+    if auth_header and auth_header.startswith('Bearer '):
+        access_token = auth_header.split(' ')[1]
+
+        # Decode the access token
+        try:
+            secret_key = 'your_secret_key'  # Replace with your own secret key
+            payload = jwt.decode(access_token, secret_key, algorithms=['HS256'])
+            email = payload['email']
+
+            # Retrieve the user based on the email
+            client = MongoClient('mongodb://localhost:27017/')
+            db = client['blogs']
+            users_collection = db['users']
+            user = users_collection.find_one({'email': email})
+
+            if user:
+                # Clear the access token
+                user['access_token'] = None
+                user['refresh_token'] = None
+
+                # Update the user document in the database
+                users_collection.update_one({'_id': user['_id']}, {'$set': user})
+
+                return jsonify({'message': 'Logout successful'})
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Access token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid access token'}), 401
+
+    return jsonify({'message': 'Invalid authorization header'}), 401

@@ -136,8 +136,8 @@
               </MenuButton>
               <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
                 <MenuItems class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                  <MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-                    <a :href="item.href" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']">{{ item.name }}</a>
+                  <MenuItem  v-slot="{ active }">
+                    <span  @click="handleClick"  :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900 cursor-pointer']">Logout</span>
                   </MenuItem>
                 </MenuItems>
               </transition>
@@ -161,6 +161,11 @@ import { Dialog, DialogPanel,  Menu, MenuButton, MenuItem,  MenuItems, Transitio
 import { Bars3Icon, BellIcon, CalendarIcon, ChartPieIcon, Cog6ToothIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import Auth from '@/composables/Auth'
+
+const {logout} = Auth()
+const token = ref(localStorage.getItem('blogsAccessToken'))
+const refresh_token = ref(localStorage.getItem('blogsRefreshToken'))
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: HomeIcon, current: true },
@@ -206,9 +211,15 @@ const teams = [
   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
 ]
 const userNavigation = [
-  { name: 'Your profile', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { id:1,  name: 'Your profile',  href: '#' },
+  { id:2, name: 'Sign out', href: '#' },
 ]
+
+const handleClick = ()=>{
+  logout(token.value).then((data)=>{
+    location.reload()
+  })
+}
 
 const sidebarOpen = ref(false)
 
