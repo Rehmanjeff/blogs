@@ -15,6 +15,19 @@ const Category = () => {
         }
     };
 
+
+    const updateCategory = async (token, formData, id) => {
+
+      try {
+
+          let response = await axios.put('http://localhost:5000/admin/categories/'+id, {name:formData}, { headers: {"Authorization" : `${token}`} });
+          return response;
+      } catch (err) {
+
+          return err.response;
+      }
+  };
+
     const categoryList = async (token) => {
 
       try {
@@ -31,7 +44,8 @@ const Category = () => {
     return {
       
         categoryName,
-        categoryList
+        categoryList,
+        updateCategory
     }
 };
 

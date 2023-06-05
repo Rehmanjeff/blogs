@@ -26,10 +26,11 @@
                   <div class="relative flex-1 px-4 mt-6 sm:px-6">
                     <div class="w-full mb-5">
                         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                        <input type="text" v-model="name" name="name" id="name" autocomplete="name" class="block w-full h-10 pl-2 mt-1 text-sm text-gray-500 border border-gray-300 rounded-sm" />
+                        <input type="text" v-model="category.name" name="name" id="name" autocomplete="name" class="block w-full h-10 pl-2 mt-1 text-sm text-gray-500 border border-gray-300 rounded-sm" />
+                        <div class="text-sm text-themered" v-if="nameError">{{ nameError }}</div>
                     </div>
                     <div class="flex"  @click="closeDialog">
-                        <button type="button" @click="saveCategory" :disabled="name.trim() === ''" class="px-10 py-2 mt-20 ml-auto text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
+                        <button type="button" @click="proceedCreateCategory"  class="px-10 py-2 mt-20 ml-auto text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
                     </div>
                   </div>
                 </div>
@@ -40,7 +41,7 @@
       </div>
     </Dialog>
   </TransitionRoot>
-  <PageNotification @close=closeNotification :show=notificationProps.show :type=notificationProps.type :message=notificationProps.message :messageDetails=notificationProps.messageDetails></PageNotification>
+<PageNotification @close=closeNotification :show=notificationProps.show :type=notificationProps.type :message=notificationProps.message :messageDetails=notificationProps.messageDetails></PageNotification>
   
 </template>
 
@@ -52,9 +53,11 @@ import { XMarkIcon } from '@heroicons/vue/20/solid'
 import Category from "@/composables/Category"
 
 const props = defineProps(['edit', 'display'])
-const emit = defineEmits(['isClosed', 'success', 'data'])
-const {categoryName} = Category()
-const token = ref(localStorage.getItem('blogsAccessToken'))
+const emit = defineEmits(['isClosed', 'success', 'data','hasError'])
+const {categoryName, updateCategory} = Category()
+const token = localStorage.getItem('blogsAccessToken')
+const category = reactive({category_id: null, name: ''})
+const nameError = ref(false)
 
 const name = ref('')
 const notificationProps = reactive({
@@ -65,29 +68,72 @@ const notificationProps = reactive({
 })
 
 watch(() => props.edit, (newValue, oldValue) => {
+
+  if(newValue !== null ){
     
-    name.value = props.edit.name
+    // edit button was clicked
+    category.id = newValue.category_id
+    category.name = newValue.name
+  }else{
+
+    // add button was clicked
+    category.id = null
+    category.name = ''
+  }
 })
+
 
 const closeNotification = () => {
 
 
 }
-// Api request to save the category name to the database 
-const saveCategory = ()=>{
-  if(name.value != ''){
-    categoryName(name.value, token.value).then((data)=>{
-      if(data.status == 201){
-        resetValue()
-        emit('data')
-      }else{
-        notificationProps.show = true
-        notificationProps.message = data.response.data.message
-        notificationProps.type = "error"
-      }
-      
+
+
+const proceedCreateCategory = () => {
+  resetErrors()
+if(category.name == ''){
+
+  nameError.value = 'Required'
+}else{
+
+  if(category.id == null){
+    
+    // send add author
+    const formData = new FormData()
+    formData.append('name', category.name)
+    categoryName(category.name,token).then((response)=> {
+        
+          
+        if(response.status == 201){
+            
+          emit('success', response.data.message)
+        } else {
+            
+          emit('hasError', response.data && response.data.message ? response.data.message : response)
+        }
     })
-  } 
+  }else{
+    
+
+    // send update author
+    const formData = new FormData()
+    formData.append('name', category.name)
+    updateCategory(token, category.name, category.id).then((response) => {
+        if(response.status == 200){
+            
+          emit('success', response.data.message)
+        } else {
+            
+          emit('hasError', response.data && response.data.message ? response.data.message : response)
+        }
+    })
+  }
+}
+}
+
+const resetErrors = () => {
+
+nameError.value  = false
 }
 
 const resetValue = ()=>{

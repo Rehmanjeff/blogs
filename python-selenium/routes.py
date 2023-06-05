@@ -492,3 +492,27 @@ def list_blogs():
         blogs.append(blog_data)
 
     return jsonify({'blogs': blogs}), 200
+    
+@routes.route('/admin/categories/<category_id>', methods=['PUT'])
+def update_category(category_id):
+    data = request.get_json()
+
+    db = get_database()
+    categories_collection = db['category']
+
+    try:
+        name = data.get('name')
+        if not name:
+            return jsonify({'message': 'Category name is required'}), 400
+
+        update_query = {'$set': {'name': name}}
+
+        result = categories_collection.update_one({'_id': ObjectId(category_id)}, update_query)
+
+        if result.modified_count > 0:
+            return jsonify({'message': 'Category updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Failed to update category'}), 500
+
+    except jwt.DecodeError:
+        return jsonify({'message': 'Invalid token'}), 401    

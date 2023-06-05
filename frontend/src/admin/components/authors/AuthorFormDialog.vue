@@ -3,27 +3,27 @@
       <TransitionRoot as="template" :show="display">
       <Dialog as="div" class="relative z-10" @close="closeDialog">
         <TransitionChild as="template" enter="ease-in-out duration-500" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in-out duration-500" leave-from="opacity-100" leave-to="opacity-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
         </TransitionChild>
 
         <div class="fixed inset-0 overflow-hidden">
           <div class="absolute inset-0 overflow-hidden">
-            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+            <div class="fixed inset-y-0 right-0 flex max-w-full pl-10 pointer-events-none">
               <TransitionChild as="template" enter="transform transition ease-in-out duration-500 sm:duration-700" enter-from="translate-x-full" enter-to="translate-x-0" leave="transform transition ease-in-out duration-500 sm:duration-700" leave-from="translate-x-0" leave-to="translate-x-full">
-                <DialogPanel class="pointer-events-auto relative w-screen max-w-md">
+                <DialogPanel class="relative w-screen max-w-md pointer-events-auto">
                   <TransitionChild as="template" enter="ease-in-out duration-500" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in-out duration-500" leave-from="opacity-100" leave-to="opacity-0">
-                    <div class="absolute left-0 top-0 -ml-8 flex pr-2 pt-4 sm:-ml-10 sm:pr-4">
-                      <button type="button" class="rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white" @click="closeDialog">
+                    <div class="absolute top-0 left-0 flex pt-4 pr-2 -ml-8 sm:-ml-10 sm:pr-4">
+                      <button type="button" class="text-gray-300 rounded-md hover:text-white focus:outline-none focus:ring-2 focus:ring-white" @click="closeDialog">
                         <span class="sr-only">Close panel</span>
-                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon class="w-6 h-6" aria-hidden="true" />
                       </button>
                     </div>
                   </TransitionChild>
-                  <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
+                  <div class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
                     <div class="px-4 sm:px-6">
-                      <DialogTitle class="text-base font-semibold leading-6 text-gray-900">{{ author ? 'Edit' : 'Add' }} Author</DialogTitle>
+                      <DialogTitle class="text-base font-semibold leading-6 text-gray-900">{{ edit ? 'Edit' : 'Add' }} Author</DialogTitle>
                     </div>
-                    <div class="relative mt-6 flex-1 px-4 sm:px-6">
+                    <div class="relative flex-1 px-4 mt-6 sm:px-6">
                       <div class="w-full mb-5">
                           <label class="block text-sm font-medium text-gray-700">
                             Avatar
@@ -32,18 +32,18 @@
                           <div>
                               <input class="hidden" ref="file" type="file" @change="updateAvatar" name="file" accept="image/*">
                               <div class="flex items-center gap-2 mt-2">
-                                <img class="w-12 object-cover rounded-full" :src="author.avatar != '' ? `/assets/authors/${author.avatar}` : avatarSource" />
-                                <button @click="$refs.file.click()" type="button" class="relative overflow-hidden mt-2 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Change</button>
+                                <img class="object-cover w-12 rounded-full" :src="author.avatar != '' ? `/assets/authors/${author.avatar}` : avatarSource" />
+                                <button @click="$refs.file.click()" type="button" class="relative px-3 py-2 mt-2 overflow-hidden text-sm font-medium leading-4 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Change</button>
                               </div>
                             </div>
                       </div>
                       <div class="w-full mb-5">
                           <label class="block text-sm font-medium text-gray-700">Name</label>
-                          <input type="text" v-model="author.name" class="mt-1 border border-gray-300 rounded-sm h-10 w-full block pl-2 text-gray-500 text-sm" />
+                          <input type="text" v-model="author.name" class="block w-full h-10 pl-2 mt-1 text-sm text-gray-500 border border-gray-300 rounded-sm" />
                           <div class="text-sm text-themered" v-if="nameError">{{ nameError }}</div>
                         </div>
                       <div class="flex">
-                          <button @click="proceedCreateAuthor" type="button" class="ml-auto mt-20 bg-indigo-600 py-2 px-10 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
+                          <button @click="proceedCreateAuthor" type="button" class="px-10 py-2 mt-20 ml-auto text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
                       </div>
                     </div>
                   </div>
