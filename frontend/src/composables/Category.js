@@ -7,7 +7,7 @@ const Category = () => {
 
         try {
 
-          const response = await axios.post("http://localhost:5000/admin/category",{ name:category }, {headers:{'Authorization': `Bearer ${token}`} });
+          const response = await axios.post("http://localhost:5000/admin/category",{ name:category }, { headers: {"Authorization" : `${token}`} });
           return response;
         } catch (err) {
 
@@ -19,7 +19,7 @@ const Category = () => {
 
       try {
 
-        const response = await axios.get("http://localhost:5000/admin/category/list", {headers:{'Authorization': `Bearer ${token}`} });
+        const response = await axios.get("http://localhost:5000/admin/category/list", { headers: {"Authorization" : `${token}`} });
         return response;
       } catch (err) {
 

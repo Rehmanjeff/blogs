@@ -10,7 +10,7 @@ import re
 import os
 
 UPLOAD_FOLDER = '../frontend/public/assets/authors'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -61,7 +61,6 @@ def scrapeUrl():
     result = main.scrape(data)
     return result
 
-
 @routes.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -96,7 +95,6 @@ def register_user():
     else:
         return jsonify({'message': 'Failed to register user'})
     
-
 @routes.route('/admin/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -134,7 +132,6 @@ def login():
     else:
         return jsonify({'message': 'Invalid credentials'}), 401  
     
-
 @routes.route('/admin/dashboard', methods=['GET'])
 def admin_dashboard():
     
@@ -298,25 +295,16 @@ def list_authors():
 
     return jsonify({'authors': author_list}), 200
 
-
 @routes.route('/admin/category', methods=['POST'])
 def create_category():
-    auth_header = request.headers.get('Authorization')
+    
     data = request.get_json()
-
     name = data.get('name')
     db = get_database()
 
     categories_collection = db['category']
 
-    if not auth_header:
-        return jsonify({'message': 'Token is missing'}), 400
-
-    token = auth_header.split(' ')[1]
-
     try:
-        decoded_token = jwt.decode(token, get_secret_key(), algorithms=[get_algorithem()])
-
         if not name:
             return jsonify({'message': 'Category name is required'}), 400
 
@@ -337,16 +325,9 @@ def create_category():
     
 @routes.route('/admin/category/list', methods=['GET'])
 def get_categories():
-    auth_header = request.headers.get('Authorization')
-
-    if not auth_header:
-        return jsonify({'message': 'Token is missing'}), 400
-
-    token = auth_header.split(' ')[1]
-
+    
     try:
-        decoded_token = jwt.decode(token, get_secret_key(), algorithms=[get_algorithem()])
-
+        
         db = get_database()
         categories_collection = db['category']
         categories = list(categories_collection.find({}, {'_id': 1, 'name': 1}))

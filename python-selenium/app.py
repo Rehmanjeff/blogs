@@ -40,7 +40,7 @@ def authorize_user():
 @app.before_request
 def before_request_func():
     
-    if request.endpoint in ['routes.create_author', 'routes.update_author', 'routes.admin_dashboard', 'routes.list_authors']:
+    if request.endpoint in ['routes.create_author', 'routes.update_author', 'routes.admin_dashboard', 'routes.list_authors', 'routes.create_category', 'routes.get_categories']:
         
         if request.method == 'OPTIONS':
             
