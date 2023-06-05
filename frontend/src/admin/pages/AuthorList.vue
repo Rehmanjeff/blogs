@@ -4,7 +4,7 @@
         <PrimeDataTable :value="authors" ref="authorsTable" :paginator="true" class="p-datatable-customers primeDatatable" :rows="10" dataKey="id" :rowHover="true" v-model:filters="filters" filterDisplay="menu" :loading="loading" paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown" :rowsPerPageOptions="[10,25,50]" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" :globalFilterFields="['fullName', 'designation.title','designation.employmentType', 'role']" responsiveLayout="scroll">
         <template #header>
             <div class="flex justify-content-center align-items-center">
-                <h5 class="m-0 text-lg flex items-center justify-center">
+                <h5 class="flex items-center justify-center m-0 text-lg">
                     Authors
                 </h5>
                 <div class="flex items-center justify-center ml-auto">
@@ -13,14 +13,14 @@
                         <PrimeInputText v-model="filters['global'].value" placeholder="Keyword Search" />
                     </span>
                     <div class="ml-3">
-                        <div @click="addAuthor()" class="flex flex-row items-center cursor-pointer bg-blue-600 px-3 py-2 text-white text-sm hover:bg-blue-700 rounded-md" :to="{ name: 'AdminCategoryCreate' }">
-                            <PlusSmIconSolid class="h-5 w-5" aria-hidden="true" />
+                        <div @click="addAuthor()" class="flex flex-row items-center px-3 py-2 text-sm text-white bg-blue-600 rounded-md cursor-pointer hover:bg-blue-700" :to="{ name: 'AdminCategoryCreate' }">
+                            <PlusSmIconSolid class="w-5 h-5" aria-hidden="true" />
                             Add Author
                         </div>
                     </div>
                     <div class="ml-3 cursor-pointer" @click="exportDataToCSV(authorsTable)">
-                        <div class="flex flex-row items-center justify-center px-3 py-2 text-sm btn bg-exportBtnBg text-exportBtnTxt rounded-md gap-1">
-                            <ExternalLinkIcon class="h-5 w-5" aria-hidden="true" />
+                        <div class="flex flex-row items-center justify-center gap-1 px-3 py-2 text-sm rounded-md btn bg-exportBtnBg text-exportBtnTxt">
+                            <ExternalLinkIcon class="w-5 h-5" aria-hidden="true" />
                             <span> Export</span>
                         </div>
                     </div>
@@ -37,10 +37,10 @@
             <template #body="{data}">
                 <div class="flex items-center">
                     <span v-if="data.avatar" class="inline-block mr-3">
-                        <img class="rounded-full w-12 thumbnail" :src="`/assets/authors/${data.avatar}`">
+                        <img class="w-12 rounded-full thumbnail" :src="`/assets/authors/${data.avatar}`">
                     </span>
                     <span v-else class="inline-block mr-3">
-                        <img class="rounded-full w-12 thumbnail" src="/assets/default.png">
+                        <img class="w-12 rounded-full thumbnail" src="/assets/default.png">
                     </span>
                     <span class="inline-block">
                         {{ data.name }}
@@ -58,7 +58,7 @@
         </PrimeColumn>
         <PrimeColumn header="Actions" style="min-width: 14rem">
             <template #body="{data}">
-                <span @click="proceedEdit(data)">Edit</span>
+                <span @click="proceedEdit(data)" class="cursor-pointer">Edit</span>
             </template>
         </PrimeColumn>
         </PrimeDataTable>

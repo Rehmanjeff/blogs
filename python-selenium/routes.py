@@ -337,3 +337,33 @@ def get_categories():
 
     except jwt.DecodeError:
         return jsonify({'message': 'Invalid token'}), 401
+    
+
+
+@routes.route('/admin/categories/<category_id>', methods=['PUT'])
+def update_category(category_id):
+    data = request.get_json()
+
+    # Connect to the MongoDB database
+    db = get_database()
+    categories_collection = db['category']
+
+    try:
+        # Validate the required fields
+        name = data.get('name')
+        if not name:
+            return jsonify({'message': 'Category name is required'}), 400
+
+        # Create the update query
+        update_query = {'$set': {'name': name}}
+
+        # Update the category in the database
+        result = categories_collection.update_one({'_id': ObjectId(category_id)}, update_query)
+
+        if result.modified_count > 0:
+            return jsonify({'message': 'Category updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Failed to update category'}), 500
+
+    except jwt.DecodeError:
+        return jsonify({'message': 'Invalid token'}), 401    

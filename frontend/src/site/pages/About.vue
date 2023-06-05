@@ -7,7 +7,7 @@
       Page Under Construction !
     </div>
     <div class="mt-2 font-bold text-indigo-500">
-      <RouterLink :to="{ name: 'Home' }">Go to home &rarr</RouterLink>
+      <RouterLink :to="{ name: 'Home' }">Go to home &rarr;</RouterLink>
     </div>
   </div>
 </template>

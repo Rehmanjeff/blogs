@@ -7,7 +7,7 @@ const Author = () => {
 
         try {
 
-            let response = await axios.post('http://localhost:5000/admin/authors', formData, { headers: {"Authorization" : `${token}`} });
+            let response = await axios.post('http://localhost:5000/admin/authors', {name:formData}, { headers: {"Authorization" : `${token}`} });
             return response;
         } catch (err) {
 

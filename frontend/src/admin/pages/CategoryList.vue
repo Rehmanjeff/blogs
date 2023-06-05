@@ -14,7 +14,7 @@
                         <PrimeInputText v-model="filters['global'].value" placeholder="Keyword Search" />
                     </span>
                     <div class="ml-3">
-                        <div @click="showForm = true" class="flex flex-row items-center px-3 py-2 text-sm text-white bg-blue-600 rounded-md cursor-pointer hover:bg-blue-700" :to="{ name: 'AdminCategoryCreate' }">
+                        <div @click="addCategory()"  class="flex flex-row items-center px-3 py-2 text-sm text-white bg-blue-600 rounded-md cursor-pointer hover:bg-blue-700" :to="{ name: 'AdminCategoryCreate' }">
                             <PlusSmIconSolid class="w-5 h-5" aria-hidden="true" />
                             Add Category
                         </div>
@@ -69,7 +69,7 @@
     </PrimeDataTable>
 
 
-    <CategoryFormDialog @success="formSuccess" @data="showSuccess"  @isClosed="showForm = false" :display="showForm" :edit=category></CategoryFormDialog>
+    <CategoryFormDialog @success="formSuccess" @hasError="formError"    @isClosed="showForm = false" :display="showForm" :edit=category></CategoryFormDialog>
     <PageNotification @close=closeNotification :show=notificationProps.show :type=notificationProps.type :message=notificationProps.message :messageDetails=notificationProps.messageDetails></PageNotification>   
 </template>
 
@@ -97,9 +97,11 @@ const filters = ref({
 const showForm = ref(false)
 const category = ref(null)
 
+
+
 // Compute the category ID
 const getCategoryID = (index) => {
-  return index + 1;
+    return index + 1;
 };
 
 const notificationProps = reactive({
@@ -110,14 +112,22 @@ const notificationProps = reactive({
 })
 const closeNotification = () => {
     notificationProps.show = false
-
-}
     
+}
+
+const formError = (error)=>{
+
+    showForm.value = false
+    notificationProps.type = 'error'
+    notificationProps.message = error
+    notificationProps.show = true
+}
 categories.value = ref[('')]
 
 const getCategory=()=>{
     categoryList(token.value).then((data)=>{
         categories.value = data.data
+        
     })
 }
 
@@ -129,21 +139,25 @@ const proceedEdit = (data) => {
     showForm.value = true
 }
 
-const formSuccess = () => {
+const formSuccess = (message) => {
 
+showForm.value = false
+notificationProps.type = 'success'
+notificationProps.message = message
+notificationProps.show = true
 
+getCategory()
+setTimeout(() => {
+    notificationProps.show = false;
+  }, 5000);
 }
 
-const showSuccess = () => {
-    getCategory()
-  notificationProps.show = true;
-  notificationProps.message = 'Category Save successfully !'
-  notificationProps.type ='success'
+const addCategory = () => {
 
-  setTimeout(() => {
-    notificationProps.show = false;
-  }, 5000); // 5 seconds
-};
+category.value = null
+showForm.value = true
+}
+
 
 
 onMounted(() => {
