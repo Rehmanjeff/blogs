@@ -23,18 +23,11 @@ const routes = [
     component: Home,
     meta: { isUserRoute: true },
   },
-
   {
     path: "/about",
     name: "About",
     component: About,
     meta: { isUserRoute: true },
-  },
-  {
-    path: "/admin/login",
-    name: "AdminLogin",
-    component: AdminLogin,
-    
   },
   {
     path: "/blog/:slug",

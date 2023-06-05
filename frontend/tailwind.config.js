@@ -22,7 +22,8 @@ export default {
       colors: {
         exportBtnBg: "#c8e6c9",
         exportBtnTxt: "#256029",
-        themered: "#fc064c"
+        themered: "#fc064c",
+        themegreen: "#28a745"
       }
     },
     screens: {

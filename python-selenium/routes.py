@@ -1,12 +1,54 @@
 from flask import Blueprint, request, jsonify
+from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-import datetime
+from datetime import datetime
+from bson.objectid import ObjectId
 import bcrypt
 import main
 import jwt
 import re
+import os
 
+UPLOAD_FOLDER = '../frontend/public/assets/authors'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_secret_key():
+    return 'your_secret_key'
+
+def get_algorithem():
+    return 'HS256'
+
+def get_database():
+    client = MongoClient('mongodb://localhost:27017/')
+    return client['blogs']
+
+def get_authenticated_user():
+
+    access_token = request.headers.get('Authorization')
+    secret_key = get_secret_key() 
+    algorithm = get_algorithem()
+
+    try:
+        payload = jwt.decode(access_token, secret_key, algorithms=[algorithm])
+        email = payload.get('email')
+
+        db = get_database()
+        users_collection = db['users']
+
+        user = users_collection.find_one({'email': email, 'access_token': access_token})
+
+        if not user:
+            return None
+        else:
+            return user
+    except jwt.ExpiredSignatureError:
+        return None 
+    except jwt.InvalidTokenError:
+        return None
 
 routes = Blueprint('routes', __name__)
 
@@ -17,7 +59,6 @@ def scrapeUrl():
     return result
 
 
-# Endpoint for the user to register in the mongodb by providing the credentials (name, email, password)
 @routes.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
@@ -64,41 +105,32 @@ def register_user():
         return jsonify({'message': 'Failed to register user'})
     
 
-
-
-# Endpoint for the admin to login and get the access token
 @routes.route('/admin/login', methods=['POST'])
 def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
 
-    # Check if required fields are provided
     if not email:
         return jsonify({'message':'Please provide email'}), 400
 
     if not password:
         return jsonify({'message': 'Please provide  password'}), 400
 
-    # Connect to the MongoDB database or any other user authentication system
     client = MongoClient('mongodb://localhost:27017/')
     db = client['blogs']
     users_collection = db['users']
 
-    # Find the user document by email
     user = users_collection.find_one({'email': email})
 
-    # Check if the user exists and the password matches
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
         
-          # Generate access token
         expiration_time = datetime.datetime.utcnow() + datetime.timedelta(days=7)
         payload = {'email': email, 'exp': expiration_time}
         secret_key = 'your_secret_key'  # Replace with your own secret key
         algorithm = 'HS256'
         access_token = jwt.encode(payload, secret_key, algorithm = algorithm)
 
-         # Generate refresh token
         refresh_token_payload = {'email': email}
         refresh_token_secret_key = 'your_refresh_token_secret_key'  # Replace with your own refresh token secret key
         refresh_token_algorithm = 'HS256'
@@ -112,46 +144,13 @@ def login():
         return jsonify({'message': 'Invalid credentials'}), 401  
     
 
-
-
-# Endpoint through which admin provide the valid access token recieve in the login endpoint and get the previliges to access the dashboard 
 @routes.route('/admin/dashboard', methods=['GET'])
 def admin_dashboard():
-    access_token = request.headers.get('Authorization')
-
-    # Check if access token is provided
-    if not access_token:
-        return jsonify({'message': 'Access token is missing'}), 401
-
-    # Verify and decode the access token
-    secret_key = 'your_secret_key'  # Replace with your own secret key
-    algorithm = 'HS256'
-    try:
-        payload = jwt.decode(access_token, secret_key, algorithms=[algorithm])
-        email = payload.get('email')
-
-        # Connect to the MongoDB database or any other user authentication system
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['blogs']
-        users_collection = db['users']
-
-        # Find the user document by email and access token
-        user = users_collection.find_one({'email': email, 'access_token': access_token})
-
-        if user:
-            # Access token is valid and present in the database, return the user email
-            return jsonify({'message': 'Access granted', 'email': email})
-        else:
-            return jsonify({'message': "Token dosen't exists in database"}), 401
-    except jwt.ExpiredSignatureError:
-        return jsonify({'message': 'Access token has expired'}), 401 
-    except jwt.InvalidTokenError:
-        return jsonify({'message': 'Invalid refresh token'}), 401   
     
+    user = get_authenticated_user()
 
-
-
-
+    return jsonify({'user': str(user['_id'])}), 200
+    
 @routes.route('/admin/refresh', methods=['POST'])
 def refresh_token():
     data = request.get_json()
@@ -182,8 +181,6 @@ def refresh_token():
     except jwt.InvalidTokenError:
         return jsonify({'message': 'Invalid refresh token'}), 401
     
-
-
 @routes.route('/admin/logout', methods=['POST'])
 def logout():
     auth_header = request.headers.get('Authorization')
@@ -219,3 +216,102 @@ def logout():
             return jsonify({'message': 'Invalid access token'}), 401
 
     return jsonify({'message': 'Invalid authorization header'}), 401
+
+@routes.route('/admin/authors', methods=['POST'])
+def create_author():
+    
+    name = request.form.get('name')
+
+    if not name:
+        return jsonify({'error': 'Name is required'}), 400
+
+    if 'avatar' not in request.files:
+        return jsonify({'error': 'Avatar image is required'}), 400
+
+    avatar_file = request.files['avatar']
+
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+    if avatar_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if not allowed_file(avatar_file.filename):
+        return jsonify({'error': 'Invalid file extension'}), 400
+
+    filename = secure_filename(avatar_file.filename)
+
+    avatar_path = os.path.join(UPLOAD_FOLDER, filename)
+    avatar_file.save(avatar_path)
+
+    author = {
+        'name': name,
+        'avatar': filename,
+        'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    db = get_database()
+    authors_collection = db['authors']
+    result = authors_collection.insert_one(author)
+
+    if result.inserted_id:
+        return jsonify({'message': 'Author created successfully'}), 201
+    else:
+        return jsonify({'message': 'Failed to create author'}), 400
+
+@routes.route('/admin/authors/<id>', methods=['PUT'])
+def update_author(id):
+
+    db = get_database()
+    authors_collection = db['authors']
+    name = request.form.get('name')
+
+    if not name:
+        return jsonify({'error': 'Name is required'}), 400
+    
+    author = authors_collection.find_one({'_id': ObjectId(id)})
+    
+    if not author:
+        return jsonify({'error': 'Target object not found'}), 400
+    
+    if 'avatar' in request.files:
+        
+        avatar_file = request.files['avatar']
+
+        if author['avatar']:
+            existing_avatar_path = os.path.join(UPLOAD_FOLDER, author['avatar'])
+            if os.path.exists(existing_avatar_path):
+                os.remove(existing_avatar_path)
+
+        filename = secure_filename(avatar_file.filename)
+        avatar_path = os.path.join(UPLOAD_FOLDER, filename)
+        avatar_file.save(avatar_path)
+
+        authors_collection.update_one({'_id': ObjectId(id)}, {'$set': {'avatar': filename, 'name' : name}})
+    else:
+        authors_collection.update_one({'_id': ObjectId(id)}, {'$set': {'name' : name}})
+    
+    return jsonify({'message': 'Author updated successfully'}), 200
+    
+@routes.route('/admin/authors', methods=['GET'])
+def list_authors():
+    
+    db = get_database()
+    authors_collection = db['authors']
+
+    authors = authors_collection.find()
+
+    author_list = []
+    for author in authors:
+
+        db_datetime = datetime.strptime(author['created_at'], "%Y-%m-%d %H:%M:%S")
+        formatted_datetime = db_datetime.strftime("%d-%m-%Y %H:%M:%S")
+        author_data = {
+            'id': str(author['_id']),
+            'name': author['name'],
+            'avatar': author['avatar'],
+            'created_at': formatted_datetime
+        }
+        author_list.append(author_data)
+
+    return jsonify({'authors': author_list}), 200
