@@ -315,3 +315,89 @@ def list_authors():
         author_list.append(author_data)
 
     return jsonify({'authors': author_list}), 200
+
+
+@routes.route('/admin/category', methods=['POST'])
+def create_category():
+    auth_header = request.headers.get('Authorization')
+    data = request.get_json()
+
+    # Extract the necessary data from the request
+    name = data.get('name')
+
+    # Connect to the MongoDB database
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['blogs']
+
+    # Create the 'category' collection if it doesn't exist
+    categories_collection = db['category']
+
+    if not auth_header:
+        return jsonify({'message': 'Token is missing'}), 400
+
+    # Extract the token from the "Bearer <token>" format
+    token = auth_header.split(' ')[1]
+
+    try:
+        # Verify and decode the token using a secret key
+        decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+
+        # Perform any additional token validation logic here
+        # For example, check if the token is expired or validate against a user database
+
+        # Validate the required fields
+        if not name:
+            return jsonify({'message': 'Category name is required'}), 400
+
+        # Create a new category document
+        category = {
+            'name': name,
+            'created_at': datetime.datetime.now()
+        }
+
+        # Insert the category document into the collection
+        result = categories_collection.insert_one(category)
+
+        # Return a response indicating the success of the operation
+        if result.inserted_id:
+            return jsonify({'message': 'Category created successfully', 'category_id': str(result.inserted_id)}), 201
+        else:
+            return jsonify({'message': 'Failed to create category'}), 500
+
+    except jwt.DecodeError:
+        return jsonify({'message': 'Invalid token'}), 401
+    
+
+
+
+@routes.route('/admin/category/list', methods=['GET'])
+def get_categories():
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header:
+        return jsonify({'message': 'Token is missing'}), 400
+
+    # Extract the token from the "Bearer <token>" format
+    token = auth_header.split(' ')[1]
+
+    try:
+        # Verify and decode the token using a secret key
+        decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+
+        # Perform any additional token validation logic here
+        # For example, check if the token is expired or validate against a user database
+
+        # Connect to the MongoDB database
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['blogs']
+
+        # Retrieve all categories from the collection
+        categories_collection = db['category']
+        categories = list(categories_collection.find({}, {'_id': 1, 'name': 1}))
+
+        categories_data = [{'category_id': str(category['_id']), 'name': category['name']} for category in categories]
+
+        return jsonify(categories_data), 200
+
+    except jwt.DecodeError:
+        return jsonify({'message': 'Invalid token'}), 401

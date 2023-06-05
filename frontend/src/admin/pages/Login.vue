@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import Auth from '../../composables/Auth';
+import Auth from '@/composables/Auth';
 import { useRouter } from 'vue-router';
 
 
@@ -57,7 +57,6 @@ const route = useRouter()
 const proceedLogin = () => {
   if (email.value !== '' && password.value !== '') {
     login(email.value, password.value).then((response) => {
-      console.log(response)
       if(response.status == 200){
         
         if (response.data.access_token && response.data.refresh_token){
