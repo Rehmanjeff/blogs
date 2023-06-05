@@ -40,7 +40,7 @@ def authorize_user():
 @app.before_request
 def before_request_func():
     
-    if request.endpoint in ['routes.create_author', 'routes.update_author', 'routes.admin_dashboard', 'routes.list_authors', 'routes.create_category', 'routes.get_categories']:
+    if request.endpoint in ['routes.read_blog', 'routes.update_blog', 'routes.list_blogs', 'routes.create_blog', 'routes.create_author', 'routes.update_author', 'routes.admin_dashboard', 'routes.list_authors', 'routes.create_category', 'routes.get_categories']:
         
         if request.method == 'OPTIONS':
             
@@ -52,6 +52,6 @@ def before_request_func():
             # Handle actual requests
             response = authorize_user()
         return response
-    
+
 if __name__ == '__main__':
     app.run(debug=True)

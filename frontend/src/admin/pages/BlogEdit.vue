@@ -13,43 +13,70 @@
                                     </span>
                                 </a>
                             </li>
-                            <li>
-                              <a href="#" @click.prevent="toggleTab(2)" :class="[(currentTab == 2 ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'), 'group flex items-center px-3 py-2 text-sm font-medium rounded-md']">
-                                    <span class="ml-3 flex items-center">
-                                        <LinkIcon :class="[currentTab == 2 ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500', 'flex-shrink-0 -ml-1 mr-3 h-6 w-6']" aria-hidden="true" />
-                                        <span class="truncate">Link</span>
-                                    </span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </aside>
             </div>
   
             <div class="mt-5 md:col-span-4" v-if="currentTab == 1">
-              <BlogManualForm :blog="blog"></BlogManualForm>
-            </div>
-            <div class="mt-5 md:col-span-4" v-if="currentTab == 2">
-              <BlogLinkForm :blog="blog"></BlogLinkForm>
+              <BlogManualForm @success="hasSuccess" @error="hasError" :blog="blog"></BlogManualForm>
             </div>
         </div>
+        <PageNotification @close=closeNotification :show=notificationProps.show :type=notificationProps.type :message=notificationProps.message :messageDetails=notificationProps.messageDetails></PageNotification>
     </div>
   </template>
   
-  <script setup>
-  import { ref } from 'vue'
-  import BlogManualForm from '@/admin/components/blog/manualForm.vue'
-  import BlogLinkForm from '@/admin/components/blog/linkForm.vue'
-  import { FingerPrintIcon, LinkIcon } from '@heroicons/vue/20/solid'
-  
-  const props = defineProps(['id'])
+<script setup>
+import { ref, onMounted, reactive } from 'vue'
+import BlogManualForm from '@/admin/components/blog/manualForm.vue'
+import { FingerPrintIcon, LinkIcon } from '@heroicons/vue/20/solid'
+import Blog from "@/composables/Blog"
+import PageNotification from '@/admin/widgets/PageNotification.vue'
 
-  const currentTab = ref(1)
-  const blog = ref({id: 1, category: 1, title: 'BLog title here', description: 'blog description here', link: 'https://djmag.com/news/beverly-glenn-copeland-announces-first-new-album-20-years-ones-ahead-shares-africa-calling'})
-  
-  const toggleTab = (index) => {
-  
-    currentTab.value = index
-  }
-  </script>
+const props = defineProps(['id'])
+const token = localStorage.getItem('blogsAccessToken')
+const currentTab = ref(1)
+const blog = ref(null)
+const { readBlog } = Blog()
+const notificationProps = reactive({
+    show: false,
+    message: null,
+    messageDetails: '',
+    type: ''
+})
+
+const hasSuccess = (message) => {
+
+    notificationProps.type = 'success'
+    notificationProps.message = message
+    notificationProps.show = true
+}
+
+const closeNotification = () => {
+
+    notificationProps.show = false
+}
+
+const hasError = (error) => {
+
+    notificationProps.type = 'error'
+    notificationProps.message = error
+    notificationProps.show = true
+}
+
+onMounted(() => {
+
+    readBlog(token, props.id).then((data)=>{
+
+        if(data.status == 200){
+
+            blog.value = data.data.blog
+        }else{
+
+            console.log(data)
+        }
+    })
+})
+
+</script>
   

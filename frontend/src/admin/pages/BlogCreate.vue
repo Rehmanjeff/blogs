@@ -27,25 +27,53 @@
           </div>
 
           <div class="mt-5 md:col-span-4" v-if="currentTab == 1">
-            <BlogManualForm></BlogManualForm>
+            <BlogManualForm @success="hasSuccess" @error="hasError"></BlogManualForm>
           </div>
           <div class="mt-5 md:col-span-4" v-if="currentTab == 2">
-            <BlogLinkForm></BlogLinkForm>
+            <BlogLinkForm @success="hasSuccess" @error="hasError"></BlogLinkForm>
           </div>
       </div>
+      <PageNotification @close=closeNotification :show=notificationProps.show :type=notificationProps.type :message=notificationProps.message :messageDetails=notificationProps.messageDetails></PageNotification>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import BlogManualForm from '@/admin/components/blog/manualForm.vue'
 import BlogLinkForm from '@/admin/components/blog/linkForm.vue'
 import { FingerPrintIcon, LinkIcon } from '@heroicons/vue/20/solid'
+import PageNotification from '@/admin/widgets/PageNotification.vue'
 
 const currentTab = ref(1)
+const notificationProps = reactive({
+    show: false,
+    message: null,
+    messageDetails: '',
+    type: ''
+})
 
 const toggleTab = (index) => {
 
   currentTab.value = index
 }
+
+const hasSuccess = (message) => {
+
+    notificationProps.type = 'success'
+    notificationProps.message = message
+    notificationProps.show = true
+}
+
+const closeNotification = () => {
+
+    notificationProps.show = false
+}
+
+const hasError = (error) => {
+
+    notificationProps.type = 'error'
+    notificationProps.message = error
+    notificationProps.show = true
+}
+
 </script>

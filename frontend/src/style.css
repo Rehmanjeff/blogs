@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+.customer-badge {
+    border-radius: 2px;
+    padding: 0.25em 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
 .primeDatatable .p-column-header-content, .primeDatatable .p-datatable-tbody, .primeDatatable .p-inputtext.p-component {
     font-size: .9rem;
 }

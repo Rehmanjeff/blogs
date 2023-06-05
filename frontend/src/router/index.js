@@ -77,6 +77,7 @@ const routes = [
     name: "AdminBlogUpdate",
     component: AdminBlogUpdate,
     meta: { isAdminRoute: true },
+    props: true
   },
   {
     path: "/admin/categories/list",

@@ -23,7 +23,13 @@ export default {
         exportBtnBg: "#c8e6c9",
         exportBtnTxt: "#256029",
         themered: "#fc064c",
-        themegreen: "#28a745"
+        themegreen: "#28a745",
+        liveBtnBg: "#c8e6c9",
+        liveBtnTxt: "#256029",
+        draftBtnBg: "#feedaf",
+        draftBtnTxt: "#8a5340",
+        standardBtnBg: "#d1dffa",
+        standardBtnTxt: "#304f50",
       }
     },
     screens: {

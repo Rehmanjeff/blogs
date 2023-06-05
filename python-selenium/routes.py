@@ -337,3 +337,158 @@ def get_categories():
 
     except jwt.DecodeError:
         return jsonify({'message': 'Invalid token'}), 401
+
+@routes.route('/admin/blogs', methods=['POST'])
+def create_blog():
+    
+    author_id = request.form.get('author')
+    category_id = request.form.get('category')
+    type = request.form.get('type')
+    status = request.form.get('status')
+
+    if not category_id:
+        return jsonify({'error': 'Category is required'}), 400
+    if not author_id:
+        return jsonify({'error': 'Author is required'}), 400
+
+    db = get_database()
+    categories_collection = db['category']
+    authors_collection = db['authors']
+    category = categories_collection.find_one({'_id': ObjectId(category_id)})
+    author = authors_collection.find_one({'_id': ObjectId(author_id)})
+    
+    if not category:
+        return jsonify({'error': 'Category not found'}), 400
+    if not author:
+        return jsonify({'error': 'Author not found'}), 400
+
+    blogPost = {
+        'type': type,
+        'author': ObjectId(author_id),
+        'category': ObjectId(category_id),
+        'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'status' : status
+    }
+
+    if type == 'link':
+        data = {
+            'url' : request.form.get('link')
+        }
+        result = main.scrape(data)
+        if 'title' in result:
+            blogPost['link'] = request.form.get('link')
+            blogPost['name'] = result['title']
+            blogPost['description'] = result['description']
+        else:
+            return jsonify({'message': result}), 400
+    elif type == 'manual':
+        blogPost['name'] = request.form.get('name')
+        blogPost['description'] = request.form.get('description')
+    else:
+        return jsonify({'message': 'Type unknown'}), 400
+
+    blogs_collection = db['blog_posts']
+    result = blogs_collection.insert_one(blogPost)
+
+    if result.inserted_id:
+        return jsonify({'message': 'Blog created successfully'}), 201
+    else:
+        return jsonify({'message': 'Failed to create blog'}), 400
+
+@routes.route('/admin/blogs/<id>', methods=['PUT'])
+def update_blog(id):
+
+    db = get_database()
+    blogs_collection = db['blog_posts']
+    title = request.form.get('name')
+    author_id = request.form.get('author')
+    category_id = request.form.get('category')
+    description = request.form.get('description')
+    status = request.form.get('status')
+
+    if not title:
+        return jsonify({'error': 'Title is required'}), 400
+    if not category_id:
+        return jsonify({'error': 'Category is required'}), 400
+    if not author_id:
+        return jsonify({'error': 'Author is required'}), 400
+    
+    db = get_database()
+    categories_collection = db['category']
+    authors_collection = db['authors']
+    category = categories_collection.find_one({'_id': ObjectId(category_id)})
+    author = authors_collection.find_one({'_id': ObjectId(author_id)})
+    blogPost = blogs_collection.find_one({'_id': ObjectId(id)})
+
+    if not blogPost:
+        return jsonify({'error': 'Blog not found'}), 400
+    if not category:
+        return jsonify({'error': 'Category not found'}), 400
+    if not author:
+        return jsonify({'error': 'Author not found'}), 400
+    if not blogPost:
+        return jsonify({'error': 'Target object not found'}), 400
+    
+    blogs_collection.update_one({'_id': ObjectId(id)}, {'$set': {'name': title, 'description' : description, 'status': status, 'category' : ObjectId(category_id), 'author' : ObjectId(author_id)}})
+    
+    return jsonify({'message': 'Blog updated successfully'}), 200
+
+@routes.route('/admin/blogs/<id>', methods=['GET'])
+def read_blog(id):
+
+    db = get_database()
+    blogs_collection = db['blog_posts']
+    categories_collection = db['category']
+    authors_collection = db['authors']
+
+    blogPost = blogs_collection.find_one({'_id': ObjectId(id)})
+    if not blogPost:
+        return jsonify({'error': 'Blog not found'}), 400
+    
+    category = categories_collection.find_one({'_id': ObjectId(blogPost['category'])})
+    author = authors_collection.find_one({'_id': ObjectId(blogPost['author'])})
+    if not category:
+        category = {'name' : 'unknown'}
+    if not author:
+        author = {'name' : 'unknown'}
+    
+    db_datetime = datetime.strptime(blogPost['created_at'], "%Y-%m-%d %H:%M:%S")
+    formatted_datetime = db_datetime.strftime("%d-%m-%Y %H:%M:%S")
+    blog = {
+        'id' : str(blogPost['_id']),
+        'name': blogPost['name'],
+        'description': blogPost['description'],
+        'status' : blogPost['status'],
+        'category' : str(category['_id']),
+        'author' : str(author['_id']),
+        'created_at': formatted_datetime
+    }
+    
+    return jsonify({'blog': blog}), 200
+
+@routes.route('/admin/blogs', methods=['GET'])
+def list_blogs():
+    
+    db = get_database()
+    blogs_collection = db['blog_posts']
+    categories_collection = db['category']
+
+    blogPosts = blogs_collection.find()
+
+    blogs = []
+    for blogPost in blogPosts:
+
+        db_datetime = datetime.strptime(blogPost['created_at'], "%Y-%m-%d %H:%M:%S")
+        formatted_datetime = db_datetime.strftime("%d-%m-%Y %H:%M:%S")
+        category = categories_collection.find_one({'_id': ObjectId(blogPost['category'])})
+        blog_data = {
+            'id': str(blogPost['_id']),
+            'name': blogPost['name'],
+            'description': blogPost['description'],
+            'status' : blogPost['status'],
+            'category' : category['name'],
+            'created_at': formatted_datetime
+        }
+        blogs.append(blog_data)
+
+    return jsonify({'blogs': blogs}), 200
