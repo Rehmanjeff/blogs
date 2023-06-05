@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 import bcrypt
 import main
@@ -21,6 +21,9 @@ def get_secret_key():
 
 def get_algorithem():
     return 'HS256'
+
+def get_refresh_secret_key():
+    return 'your_refresh_token_secret_key'
 
 def get_database():
     client = MongoClient('mongodb://localhost:27017/')
@@ -66,7 +69,6 @@ def register_user():
     email = data.get('email')
     password = data.get('password')
 
-    # Check if required fields are provided
     if not name :
         return jsonify({'message': 'Please provide your name'}), 400
     if not email:
@@ -77,27 +79,17 @@ def register_user():
     if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
         return jsonify({'message': 'Invalid email address'}), 400
 
-     # Encrypt the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    
-    
-    # Connect to the MongoDB database
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client['blogs']
-
-    # Create the 'users' collection if it doesn't exist
+    db = get_database()
     users_collection = db['users']
 
-    # Create a new user document
     user = {
         'name': name,
         'email': email,
         'password': hashed_password.decode('utf-8'),
     }
-    # Insert the user document into the collection
     result = users_collection.insert_one(user)
 
-    
     if result.inserted_id:
         return jsonify({'message': 'User registered successfully'})
     
@@ -117,23 +109,22 @@ def login():
     if not password:
         return jsonify({'message': 'Please provide  password'}), 400
 
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client['blogs']
+    db = get_database()
     users_collection = db['users']
 
     user = users_collection.find_one({'email': email})
 
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
         
-        expiration_time = datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        expiration_time = datetime.utcnow() + timedelta(days=7)
         payload = {'email': email, 'exp': expiration_time}
-        secret_key = 'your_secret_key'  # Replace with your own secret key
-        algorithm = 'HS256'
+        secret_key = get_secret_key()
+        algorithm = get_algorithem()
         access_token = jwt.encode(payload, secret_key, algorithm = algorithm)
 
         refresh_token_payload = {'email': email}
-        refresh_token_secret_key = 'your_refresh_token_secret_key'  # Replace with your own refresh token secret key
-        refresh_token_algorithm = 'HS256'
+        refresh_token_secret_key = get_refresh_secret_key()
+        refresh_token_algorithm = get_algorithem()
         refresh_token = jwt.encode(refresh_token_payload, refresh_token_secret_key, algorithm=refresh_token_algorithm)
 
         users_collection.update_one({'_id': user['_id']}, {'$set': {'access_token': access_token}})
@@ -156,23 +147,19 @@ def refresh_token():
     data = request.get_json()
     refresh_token = data.get('refresh_token')
 
-    # Check if refresh token is provided
     if not refresh_token:
         return jsonify({'message': 'Refresh token is missing'}), 401
 
-    # Verify and decode the refresh token
-    refresh_token_secret_key = 'your_refresh_token_secret_key'  # Replace with your own refresh token secret key
-    refresh_token_algorithm = 'HS256'
+    refresh_token_secret_key = get_refresh_secret_key()
+    refresh_token_algorithm = get_algorithem()
     try:
         payload = jwt.decode(refresh_token, refresh_token_secret_key, algorithms=[refresh_token_algorithm])
         email = payload.get('email')
 
-        # Generate a new access token
-
-        expiration_time = datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        expiration_time = datetime.utcnow() + datetime.timedelta(days=7)
         access_token_payload = {'email': email, 'exp': expiration_time}
-        secret_key = 'your_secret_key'  # Replace with your own secret key
-        algorithm = 'HS256'
+        secret_key = get_secret_key()
+        algorithm = get_algorithem()
         access_token = jwt.encode(access_token_payload, secret_key, algorithm=algorithm)
 
         return jsonify({'message': 'Access token refreshed', 'access_token': access_token})
@@ -190,22 +177,17 @@ def logout():
 
         # Decode the access token
         try:
-            secret_key = 'your_secret_key'  # Replace with your own secret key
-            payload = jwt.decode(access_token, secret_key, algorithms=['HS256'])
+            secret_key = get_secret_key()
+            payload = jwt.decode(access_token, secret_key, algorithms=[get_algorithem()])
             email = payload['email']
 
-            # Retrieve the user based on the email
-            client = MongoClient('mongodb://localhost:27017/')
-            db = client['blogs']
+            db = get_database()
             users_collection = db['users']
             user = users_collection.find_one({'email': email})
 
             if user:
-                # Clear the access token
                 user['access_token'] = None
                 user['refresh_token'] = None
-
-                # Update the user document in the database
                 users_collection.update_one({'_id': user['_id']}, {'$set': user})
 
                 return jsonify({'message': 'Logout successful'})
@@ -322,43 +304,29 @@ def create_category():
     auth_header = request.headers.get('Authorization')
     data = request.get_json()
 
-    # Extract the necessary data from the request
     name = data.get('name')
+    db = get_database()
 
-    # Connect to the MongoDB database
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client['blogs']
-
-    # Create the 'category' collection if it doesn't exist
     categories_collection = db['category']
 
     if not auth_header:
         return jsonify({'message': 'Token is missing'}), 400
 
-    # Extract the token from the "Bearer <token>" format
     token = auth_header.split(' ')[1]
 
     try:
-        # Verify and decode the token using a secret key
-        decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+        decoded_token = jwt.decode(token, get_secret_key(), algorithms=[get_algorithem()])
 
-        # Perform any additional token validation logic here
-        # For example, check if the token is expired or validate against a user database
-
-        # Validate the required fields
         if not name:
             return jsonify({'message': 'Category name is required'}), 400
 
-        # Create a new category document
         category = {
             'name': name,
-            'created_at': datetime.datetime.now()
+            'created_at': datetime.now()
         }
 
-        # Insert the category document into the collection
         result = categories_collection.insert_one(category)
 
-        # Return a response indicating the success of the operation
         if result.inserted_id:
             return jsonify({'message': 'Category created successfully', 'category_id': str(result.inserted_id)}), 201
         else:
@@ -367,9 +335,6 @@ def create_category():
     except jwt.DecodeError:
         return jsonify({'message': 'Invalid token'}), 401
     
-
-
-
 @routes.route('/admin/category/list', methods=['GET'])
 def get_categories():
     auth_header = request.headers.get('Authorization')
@@ -377,24 +342,14 @@ def get_categories():
     if not auth_header:
         return jsonify({'message': 'Token is missing'}), 400
 
-    # Extract the token from the "Bearer <token>" format
     token = auth_header.split(' ')[1]
 
     try:
-        # Verify and decode the token using a secret key
-        decoded_token = jwt.decode(token, 'your_secret_key', algorithms=['HS256'])
+        decoded_token = jwt.decode(token, get_secret_key(), algorithms=[get_algorithem()])
 
-        # Perform any additional token validation logic here
-        # For example, check if the token is expired or validate against a user database
-
-        # Connect to the MongoDB database
-        client = MongoClient('mongodb://localhost:27017/')
-        db = client['blogs']
-
-        # Retrieve all categories from the collection
+        db = get_database()
         categories_collection = db['category']
         categories = list(categories_collection.find({}, {'_id': 1, 'name': 1}))
-
         categories_data = [{'category_id': str(category['_id']), 'name': category['name']} for category in categories]
 
         return jsonify(categories_data), 200
