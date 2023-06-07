@@ -51,13 +51,39 @@ const Blog = () => {
         }
     };
 
+    const getBlogSlug = async (token, slug ) => {
+
+      try {
+
+          let response = await axios.get('http://localhost:5000/blogs/'+slug,  { headers: {"Authorization" : `${token}`} });
+          return response;
+      } catch (err) {
+
+          return err.response;
+      }
+  };
+
+  const getBlogHome = async (token ) => {
+
+    try {
+
+        let response = await axios.get('http://localhost:5000/blogs/recent',  { headers: {"Authorization" : `${token}`} });
+        return response;
+    } catch (err) {
+
+        return err.response;
+    }
+};
+
 
     return {
       
         createBlog,
         listBlogs,
         readBlog,
-        updateBlog
+        updateBlog,
+        getBlogSlug,
+        getBlogHome
     }
 };
 

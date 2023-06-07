@@ -5,7 +5,7 @@
         <div class="flex flex-col">
           <div class="mb-4 text-3xl font-bold lg:text-4xl">Get in Touch</div>
           <div class="text-sm leading-6 text-gray-600">
-            Qauam nunc nunc eu sed. Sed rhoncus quis ultrices ac pellentesque
+            Feel free to reach out to us for any inquiries or assistance. We're here to help!
           </div>
         </div>
       </div>
@@ -14,7 +14,7 @@
           <div class="flex flex-col">
             <div class="mb-2 font-medium">Collaborate</div>
             <div class="mb-1 text-sm font-bold text-indigo-600">
-              <span class="cursor-pointer">collaborate@example.com</span>
+              <a href="mailto:habib@timeahead.co">habib@timeahead.co</a>
             </div>
             <div class="text-sm text-gray-600">+1 (555) 905-2345</div>
           </div>
@@ -23,7 +23,7 @@
           <div class="flex flex-col">
             <div class="mb-2 font-medium">Press</div>
             <div class="mb-1 text-sm font-bold text-indigo-600">
-              <span class="cursor-pointer">press@example.com</span>
+              <a href="mailto:ahsanhanif@timeahead.co">ahsanhanif@timeahead.co</a>
             </div>
             <div class="text-sm text-gray-600">+1 (555) 905-2345</div>
           </div>
@@ -34,7 +34,7 @@
           <div class="flex flex-col">
             <div class="mb-2 font-medium">Join our team</div>
             <div class="mb-1 text-sm font-bold text-indigo-600">
-              <span class="cursor-pointer">careers@example.com</span>
+              <a :href="'https://timeahead.co/jobs/'">timeahead.co</a>
             </div>
             <div class="text-sm text-gray-600">+1 (555) 905-2345</div>
           </div>
@@ -43,7 +43,7 @@
           <div class="flex flex-col">
             <div class="mb-2 font-medium">Say hello</div>
             <div class="mb-1 text-sm font-bold text-indigo-600">
-              <span class="cursor-pointer">hello@example.com</span>
+              <a href="mailto:ahsanayaz@timeahead.co">ahsanayaz@timeahead.co</a>
             </div>
             <div class="text-sm text-gray-600">+1 (555) 905-2345</div>
           </div>
@@ -60,17 +60,16 @@
           <div class="mb-4 text-3xl font-bold lg:text-4xl">Locations</div>
 
           <div class="text-sm leading-6 text-gray-600">
-            Consequat sunt cillum cillum elit sint. Qui occaecat nisi in ipsum
-            commodo.
+            Find us at our prime location for a seamless experience.
           </div>
         </div>
       </div>
       <div class="w-full lg:w-2/6">
         <div class="p-10 mb-4 bg-gray-50 rounded-xl">
           <div class="flex flex-col">
-            <div class="mb-2 font-medium">Los Angeles</div>
-            <div class="mb-1 text-sm text-gray-600">4556 Brendan Ferry</div>
-            <div class="text-sm text-gray-600">Los Angeles, CA 90210</div>
+            <div class="mb-2 font-medium">Lahore</div>
+            <div class="mb-1 text-sm text-gray-600">Block M Phase 2 Johar Town</div>
+            <div class="text-sm text-gray-600">Lahore, Punjab</div>
           </div>
         </div>
         <div class="p-10 mb-4 bg-gray-50 rounded-xl">

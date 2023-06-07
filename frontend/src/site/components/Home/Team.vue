@@ -14,14 +14,14 @@
       <ul role="list" class="grid gap-x-8 gap-y-12 sm:grid-cols-2 sm:gap-y-16 xl:col-span-2">
         <li v-for="person in people" :key="person.name">
           <div class="flex items-center gap-x-6">
-            <img class="w-16 h-16 rounded-full" :src="person.imageUrl" alt="" />
+            <div class="w-12 h-12">
+              <img class="h-12 rounded-full " v-if="person" :src="`/assets/authors/${person.avatar}`" alt="" />
+            </div>
             <div>
-              <h3 class="text-base font-semibold leading-7 tracking-tight text-gray-900">
-                {{ person.name }}
+              <h3 class="text-base tracking-tight text-gray-900">
+                {{ person ? person.name : '' }}
               </h3>
-              <p class="text-sm font-semibold leading-6 text-indigo-600">
-                {{ person.role }}
-              </p>
+              <p class="text-sm leading-7 tracking-tight text-gray-500" v-if="person.designation">{{ person ? person.designation : '' }}</p>
             </div>
           </div>
         </li>
@@ -31,42 +31,21 @@
 </template>
   
 <script setup>
-const people = [
-  {
-    name: "Leslie Alexander",
-    role: "Co-Founder / CEO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Leslie Alexander",
-    role: "Co-Founder / CEO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Leslie Alexander",
-    role: "Co-Founder / CEO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Leslie Alexander",
-    role: "Co-Founder / CEO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Leslie Alexander",
-    role: "Co-Founder / CEO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Leslie Alexander",
-    role: "Co-Founder / CEO",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-]
+import Author from '@/composables/Author';
+import { onMounted, ref } from 'vue';
+
+const { listAuthors } = Author()
+const people = ref([])
+const token = localStorage.getItem('blogsAccessToken')
+
+const authorList = ()=>{
+  listAuthors(token).then((data)=>{
+    people.value = data.data.authors
+  })
+}
+
+onMounted(()=>{
+  authorList()
+})
+
 </script>

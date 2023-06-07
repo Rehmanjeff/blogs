@@ -2,32 +2,31 @@
   <div>
     <div class="flex flex-row w-full pt-16 mb-16">
       <div class="w-2/8"></div>
-      <div v-for="blog in blogDetails" :key="blog.id" class="w-4/8">
-        <div class="flex flex-row gap-4 mb-2">
-          <div class="text-sm leading-8 text-gray-600">{{ blog.data }}</div>
-          <div class="p-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-full">
-            {{ blog.catagery.name }}
+      <div class="w-4/8">
+        <div class="flex flex-row items-center gap-4 mb-2">
+          <div class="text-sm leading-8 text-gray-600">{{ blogDetails ? blogDetails.created_at : '' }}</div>
+          <div class="px-6 py-1 text-xs text-gray-600 bg-gray-100 rounded-full">
+            {{ blogDetails ? blogDetails.category.name : '' }}
           </div>
         </div>
         <div class="mb-4 text-xl font-medium">
-          {{ blog.title }}
+          {{ blogDetails ? blogDetails.name : '' }}
         </div>
 
-        <div class="mb-6 text-sm leading-6 text-gray-600">
-          {{ blog.body.paraOne }}
+        <div class="mb-6 text-sm leading-6 text-gray-600" v-html="blogDetails ? blogDetails.description : ''">
+          
         </div>
-        <div class="mb-10 text-sm leading-6 text-gray-600">
-          {{ blog.body.paraTwo }}
-        </div>
+        
         <div class="flex flex-row items-center">
-          <div class="mr-3 bg-gray-200 rounded-full">
-            <img :src="blog.user.image" alt="" class="rounded-full" />
+          <div class="flex items-center justify-center w-12 h-12 mr-3 overflow-hidden bg-gray-200 rounded-full">
+            <img v-if="blogDetails" :src="`/assets/authors/${blogDetails.author.avatar}`" alt="" class="h-12 rounded-full" />
           </div>
-          <div class="flex flex-col pt-10">
-            <div>{{ blog.user.name }}</div>
-            <div class="mb-10 text-sm leading-6 text-gray-600">
-              {{ blog.user.post }}
+          <div class="flex flex-col">
+            <div>
+              <h3>{{ blogDetails ? blogDetails.author.name : '' }}</h3>
+              <p class="text-sm leading-7 tracking-tight text-gray-500">{{ blogDetails ? blogDetails.author.designation : '' }}</p>
             </div>
+            
           </div>
         </div>
       </div>
@@ -45,7 +44,7 @@
         <div v-for="item in navigation" :key="item.id" class="md:w-2/6 xs:w-full">
           <div class="flex flex-row items-center gap-4 mb-4">
             <div class="text-sm leading-8 text-gray-600">{{ item.date }}</div>
-            <div class="p-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-full">
+            <div class="p-1 px-6 text-xs text-gray-600 bg-gray-100 rounded-full">
               {{ item.catagery.name }}
             </div>
           </div>
@@ -54,8 +53,8 @@
             {{ item.body }}
           </div>
           <div class="flex flex-row items-center">
-            <div class="mr-3 bg-gray-200 rounded-full">
-              <img :src="item.user.image" alt="" class="rounded-full" />
+            <div class="w-12 h-12 mr-3 bg-gray-200 rounded-full">
+              <img :src="item.user.image" alt="" class="h-12 rounded-full" />
             </div>
             <div class="flex flex-col pt-10">
               <div>{{ item.user.name }}</div>
@@ -71,29 +70,25 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
+import Blog from "@/composables/Blog"
+import { useRoute } from "vue-router"
 
-const blogDetails = ref([
-  {
-    id: "1",
-    data: "Sep 16, 2021",
-    catagery: { id: "1", name: "Marketing" },
-    title:
-      " We’re incredibly proud to announce we have secured $75m in Series B",
-    body: {
-      paraOne:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed consectetur viverra purus, ut interdum velit ultrices sed. Nulla sit amet tristique ipsum. Quisque rutrum sollicitudin purus, sed aliquam sapien fringilla in. Phasellus et sem non felis faucibus hendrerit. Vivamus at sem sit amet elit auctor eleifend a id justo. Fusce quis felis ut odio condimentum eleifend. Proin at condimentum mauris, at auctor mauris. Mauris hendrerit metus a leo pulvinar rutrum. Nullam dignissim purus in malesuada auctor. Fusce ac metus nec leo commodo consectetur.",
-      paraTwo:
-        " Suspendisse potenti. Vestibulum pharetra dignissim faucibus. Maecenas  gravida arcu quis urna bibendum, ac pellentesque metus vulputate. Sed hendrerit lectus non libero tristique semper.",
-    },
-    user: {
-      id: 1,
-      name: "Johndoe",
-      image: "/src/assets/images/default_profile.png",
-      post: "Co-Founder / CTO",
-    },
-  },
-])
+const route = useRoute()
+const slug = route.params.slug
+const token = localStorage.getItem('blogsAccessToken')
+const { getBlogSlug } = Blog()
+const blogDetails = ref(null)
+
+const getBlog = ()=>{
+  getBlogSlug(token, slug).then((data)=>{
+    blogDetails.value = data.data.blog
+  })
+}
+
+onMounted(()=>{
+  getBlog()
+})
 
 const navigation = ref([
   {

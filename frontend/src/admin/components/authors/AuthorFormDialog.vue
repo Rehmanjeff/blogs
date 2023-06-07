@@ -42,6 +42,10 @@
                           <input type="text" v-model="author.name" class="block w-full h-10 pl-2 mt-1 text-sm text-gray-500 border border-gray-300 rounded-sm" />
                           <div class="text-sm text-themered" v-if="nameError">{{ nameError }}</div>
                         </div>
+                        <div class="w-full mb-5">
+                          <label class="block text-sm font-medium text-gray-700">Designation <span class="text-xs text-gray-400">(optional)</span> </label>
+                          <input type="text" v-model="author.designation" class="block w-full h-10 pl-2 mt-1 text-sm text-gray-500 border border-gray-300 rounded-sm" />
+                        </div>
                       <div class="flex">
                           <button @click="proceedCreateAuthor" type="button" class="px-10 py-2 mt-20 ml-auto text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
                       </div>
@@ -72,7 +76,7 @@ const avatarError = ref(false)
 const nameError = ref(false)
 const selectedFile = ref(null)
 const avatarSource = ref(defaultAvatar)
-const author = reactive({id: null, name: '', avatar: ''})
+const author = reactive({id: null, name: '', avatar: '', designation:''})
 
 watch(() => props.edit, (newValue, oldValue) => {
   
@@ -82,12 +86,14 @@ watch(() => props.edit, (newValue, oldValue) => {
     author.id = newValue.id
     author.name = newValue.name
     author.avatar = newValue.avatar
+    author.designation = newValue.designation
   }else{
 
     // add button was clicked
     author.id = null
     author.name = ''
     author.avatar = ''
+    author.designation = ''
     avatarSource.value = defaultAvatar
   }
 })
@@ -135,10 +141,9 @@ const proceedCreateAuthor = () => {
       const formData = new FormData()
       formData.append('name', author.name)
       formData.append('avatar', selectedFile.value)
+      formData.append('designation', author.designation)
       createAuthor(token, formData).then((response) => {
-            
-          if(response.status == 201){
-              
+          if(response.status == 201){           
             emit('success', response.data.message)
           } else {
               
@@ -151,6 +156,7 @@ const proceedCreateAuthor = () => {
       const formData = new FormData()
       formData.append('name', author.name)
       formData.append('avatar', selectedFile.value)
+      formData.append('designation', author.designation)
       updateAuthor(token, formData, author.id).then((response) => {
             
           if(response.status == 200){
