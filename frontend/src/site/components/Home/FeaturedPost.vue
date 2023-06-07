@@ -47,7 +47,6 @@
 </template>
   
 <script setup>
-import { useRoute } from "vue-router"
 import Blog from "@/composables/Blog"
 import { onMounted, ref } from "vue"
 
