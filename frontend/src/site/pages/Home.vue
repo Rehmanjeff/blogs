@@ -35,13 +35,17 @@
           </div>
         </div>
       </div>
-      <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
-        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%,100% 61.6%,97.5% 26.9%,85.5% 0.1%,80.7% 2%,72.5% 32.5%,60.2% 62.4%,52.4% 68.1%,47.5% 58.3%,45.2% 34.5%,27.5% 76.7%,0.1% 64.9%,17.9% 100%,27.6% 76.8%,76.1% 97.7%,74.1% 44.1%);"/>
-      </div>
+      
     </div>
     <FeaturedPostVue />
     <Team />
     <Testimonial />
+    <div v-if="!accepted" class="fixed bottom-0 left-0 w-full px-4 py-2 text-white bg-gray-800">
+      <p class="p-2 text-sm">
+        We use cookies to improve your experience on our website. By continuing to browse, you accept our use of cookies.
+        <button @click="accept" class="px-2 py-1 ml-4 text-gray-800 bg-white rounded hover:bg-gray-200">Accept</button>
+      </p>
+    </div>
   </div>
 </template>
   
@@ -49,4 +53,19 @@
 import FeaturedPostVue from "@/site/components/Home/FeaturedPost.vue"
 import Team from "@/site/components/Home/Team.vue"
 import Testimonial from "@/site/components/Home/Testimonial.vue"
+import { ref, onMounted } from 'vue';
+import Cookies from 'js-cookie';
+
+const accepted = ref(false);
+
+onMounted(() => {
+  if (Cookies.get('cookieAccepted')) {
+    accepted.value = true;
+  }
+});
+
+const accept = () => {
+  Cookies.set('cookieAccepted', true, { expires: 365 });
+  accepted.value = true;
+};
 </script>

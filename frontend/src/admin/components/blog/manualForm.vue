@@ -148,16 +148,37 @@ const submitForm = () => {
     }
 }
 
+// const resetForm = () => {
+
+//     selectedAuthor.value = authors.value.length ? authors.value[0].id : null
+//     selectedCategory.value = categories.value.length ? categories.value[0].category_id : null
+//     title.value = content.value = ''
+//     status.value = 'live'
+
+//     const quillEditor = quillEditorRef.value
+//     quillEditor.setContents([])
+// }
+
 const resetForm = () => {
+  if (authors.value.length > 0) {
+    selectedAuthor.value = authors.value[0].id;
+  } else {
+    selectedAuthor.value = null;
+  }
 
-    selectedAuthor.value = authors.value.length ? authors.value[0].id : null
-    selectedCategory.value = categories.value.length ? categories.value[0].category_id : null
-    title.value = content.value = ''
-    status.value = 'live'
+  if (categories.value.length > 0) {
+    selectedCategory.value = categories.value[0].category_id;
+  } else {
+    selectedCategory.value = null;
+  }
 
-    const quillEditor = quillEditorRef.value
-    quillEditor.setContents([])
-}
+  title.value = '';
+  content.value = '';
+  status.value = 'live';
+
+  const quillEditor = quillEditorRef.value;
+  quillEditor.setContents([]);
+};
 
 onMounted(() => {
 

@@ -75,6 +75,16 @@ const Blog = () => {
     }
 };
 
+const getBlogCategory = async (token, categoryName) => {
+  try {
+    let response = await axios.get('http://localhost:5000/blogs/recommend', { params: { category: categoryName }, headers: { Authorization: token }
+    });
+    return response;
+  } catch (err) {
+    return err.response;
+  }
+};
+
 
     return {
       
@@ -83,7 +93,8 @@ const Blog = () => {
         readBlog,
         updateBlog,
         getBlogSlug,
-        getBlogHome
+        getBlogHome,
+        getBlogCategory
     }
 };
 

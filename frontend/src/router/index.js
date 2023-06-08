@@ -12,6 +12,8 @@ import About from "@/site/pages/About.vue"
 import Contact from "@/site/pages/Contact.vue"
 import Login from "@/site/pages/Login.vue"
 import Blog from "@/site/pages/Blog.vue"
+import Terms from "@/site/pages/Terms.vue"
+import Privacy from "@/site/pages/Privacy.vue"
 
 
 
@@ -48,6 +50,20 @@ const routes = [
     component: Blogs,
     meta: { isUserRoute: true },
   },
+  {
+    path: "/terms",
+    name: "Terms",
+    component: Terms,
+    meta: { isUserRoute: true },
+  },
+  {
+    path: "/privacy-policy",
+    name: "Privacy",
+    component: Privacy,
+    meta: { isUserRoute: true },
+  },
+
+  // Admin Routes
   {
     path: "/admin",
     name: "AdminHome",

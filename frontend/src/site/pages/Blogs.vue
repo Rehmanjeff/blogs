@@ -18,7 +18,7 @@
             </div>
             <div>
               <div class="mb-6 text-xl font-medium">
-                  <RouterLink :to="{name: 'Blog', params: {slug: item.slug}}">
+                  <RouterLink :to="{name: 'Blog', params: {slug: item.slug}}" @click="scrollToTop">
                   {{ item.name }}
                 </RouterLink>
                 </div>
@@ -59,6 +59,13 @@ const token = localStorage.getItem('blogsAccessToken')
 
 const {listBlogs} = Blog()
 const navigation = ref([])
+
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
 
 const getBlog = ()=>{
   listBlogs(token).then((data)=>{

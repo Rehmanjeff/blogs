@@ -7,6 +7,8 @@ from pymongo import MongoClient
 
 app = Flask(__name__)
 CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, headers=["category", "Authorization"])
+
 app.register_blueprint(routes)
 app.debug = True
 
@@ -53,6 +55,7 @@ def before_request_func():
         "routes.create_category",
         "routes.get_categories",
         "routes.update_category",
+        "routes.get_blogs_by_category",
     ]:
         if request.method == "OPTIONS":
             response = app.make_default_options_response()

@@ -10,6 +10,7 @@ import main
 import jwt
 import re
 import os
+from flask import Flask, jsonify
 
 UPLOAD_FOLDER = "../frontend/public/assets/authors"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
@@ -681,3 +682,53 @@ def get_recent_blogs():
         blogs.append(blog)
 
     return JSONEncoder().encode(blogs), 200
+
+
+@routes.route("/blogs/recommend", methods=["GET"])
+def get_blogs_by_category():
+    db = get_database()
+    blogs_collection = db["blog_posts"]
+    category_collection = db["category"]
+    author_collection = db["authors"]
+    category_name = request.args.get("category")
+
+    # Find the category document based on the category name
+    category = category_collection.find_one({"name": category_name})
+
+    if not category:
+        return jsonify({"message": "Category name not valid"}), 400
+
+    if category:
+        category_id = category["_id"]
+        category_name = category[
+            "name"
+        ]  # Get the category name from the category document
+
+        # Find the blogs with the matching category ID, limit to 3 and sort by created_at
+        blogs = (
+            blogs_collection.find({"category": category_id})
+            .sort("created_at", -1)
+            .limit(3)
+        )
+
+        # Prepare the blogs response
+        response = []
+        for blog in blogs:
+            blog["_id"] = str(blog["_id"])
+
+            author_id = blog.get("author")
+            author = author_collection.find_one({"_id": author_id})
+            if author:
+                blog["author"] = {
+                    "name": author.get("name"),
+                    "avatar": author.get("avatar"),
+                    "designation": author.get("designation"),
+                }
+            blog[
+                "category"
+            ] = category_name  # Include the category name in the blog document
+            response.append(blog)
+
+        return JSONEncoder().encode(response), 200
+    else:
+        return jsonify([]), 200
